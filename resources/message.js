@@ -63,6 +63,8 @@ export function DeleteMessage(channel_id, message_id, reason) {
 }
 
 export function BulkDeleteMessages(channel_id, messages, reason) {
+	if (messages.length < 2)
+		return this.DeleteMessage(channel_id, messages[0], reason)
 	return this.fetch(`/channels/${channel_id}/messages/bulk-delete`, {
 		headers: {
 			'X-Audit-Log-Reason': reason
