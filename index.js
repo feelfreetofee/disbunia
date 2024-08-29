@@ -11,14 +11,29 @@ class disbunia {
 
 	fetch(resource, options) {
 		const {promise, resolve} = Promise.withResolvers()
-		const json = options?.body && typeof options.body === 'object'
+		if (options?.params)
+			resource += '?' + new URLSearchParams(
+				Object.entries(options.params).filter(([k, v]) => v !== undefined)
+			).toString()
+		const json = options?.json && JSON.stringify(options.json)
+		let body
+		if (options?.formData) {
+			body = new FormData()
+
+			if (json)
+				form.append('payload_json', json)
+
+			for (const file in options.formData)
+				form.append(`files[${file}]`, options.formData[file], options.formData[file]?.name)
+		} else
+			body = json
 		this.#queue.push([resolve, this.#baseURL + resource, {
 			headers: Object.assign({
 				Authorization: this.#token,
-				'Content-Type': json ? 'application/json' : undefined
+				'Content-Type': options?.json ? 'application/json' : undefined
 			}, options?.headers),
 			method: options?.method,
-			body: json ? JSON.stringify(options.body) : options?.body
+			body
 		}])
 		if (!this.lock)
 			this.#next(this.lock = true)
@@ -27,11 +42,11 @@ class disbunia {
 
 	#next() {
 		fetch(...this.#queue[0].slice(1)).then(r => this.#resolve(r))			
-    }
+	}
 
 	#resolve(r) {
-		this.#queue.shift().shift()(r)
-
+        if (r.status !== 429) // Too Many Requests
+			r.json().then(this.#queue.shift().shift())
 		if (this.#queue.length == 0)
 			this.lock = false
 		else if (r.headers.get('x-ratelimit-remaining') == 0)
@@ -42,6 +57,8 @@ class disbunia {
 }
 
 Object.assign(disbunia.prototype,
+	await import('./paginator'),
+	await import('./resources/invite'),
 	await import('./resources/message'),
 	await import('./resources/user')
 )

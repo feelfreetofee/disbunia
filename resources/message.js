@@ -1,35 +1,57 @@
-// WIP: https://discord.com/developers/docs/resources/message#get-channel-messages
-export async function* getMessagesBefore(channel_id, limit = 50, before) {
-	const url = `/channels/${channel_id}/messages?limit=${limit}`
-	while (true) {
-		const messages = await this.fetch(before ? url + `&before=${before}` : url)
-		if (messages.length === 0)
-			break
-		yield messages
-		if (messages.length < limit)
-			break
-		before = messages.at(-1).id
-	}
+export function GetChannelMessagesAround(channel_id, around, limit = 50) {
+	return this.fetch(`/channels/${channel_id}/messages`, {
+		params: {
+			around,
+			limit
+		}
+	})
+}
+
+export function GetChannelMessagesBefore(channel_id, before, limit = 50) {
+	return this.fetchBefore(`/channels/${channel_id}/messages`, {
+		params: {
+			before,
+			limit
+		}
+	})
+}
+
+export function GetChannelMessagesAfter(channel_id, after, limit = 50) {
+	return this.fetchAfter(`/channels/${channel_id}/messages`, {
+		params: {
+			after,
+			limit
+		}
+	})
 }
 
 export function GetChannelMessage(channel_id, message_id) {
 	return this.fetch(`/channels/${channel_id}/messages/${message_id}`)
 }
 
-export function CreateMessage(channel_id, message) {
+export function CreateMessage(channel_id, json, formData) {
 	return this.fetch(`/channels/${channel_id}/messages`, {
 		method: 'POST',
-		body: message
+		json,
+		formData
 	})
 }
 
 export function CrosspostMessage(channel_id, message_id) {
-	return this.fetch(`/channels/${channel_id}/messages/${channel_id}/crosspost`, {
+	return this.fetch(`/channels/${channel_id}/messages/${message_id}/crosspost`, {
 		method: 'POST'
 	})
 }
 
-// TODO: https://discord.com/developers/docs/resources/message#edit-message
+// TODO: Reaction methods
+
+export function EditMessage(channel_id, message_id, json, formData) {
+	return this.fetch(`/channels/${channel_id}/messages/${message_id}`, {
+		method: 'POST',
+		json,
+		formData
+	})
+}
 
 export function DeleteMessage(channel_id, message_id, reason) {
 	return this.fetch(`/channels/${channel_id}/messages/${message_id}`, {
@@ -46,6 +68,8 @@ export function BulkDeleteMessages(channel_id, messages, reason) {
 			'X-Audit-Log-Reason': reason
 		},
 		method: 'POST',
-		body: {messages}
+		json: {
+			messages
+		}
 	})
 }
