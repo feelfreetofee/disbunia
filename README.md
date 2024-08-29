@@ -23,14 +23,14 @@ const Discord = new disbunia(process.env.token)
 const channel_id = '103735883630395392'
 
 for await (const messages of Discord.GetChannelMessagesBefore(channel_id, undefined, 100))
-  await Discord.BulkDeleteMessages(channel_id, messages)
+  await Discord.BulkDeleteMessages(channel_id, messages.map(message => message.id))
 ```
 ### Delete [all messages after](https://discord.com/developers/docs/resources/message#create-message) a message
 ```js
 let message_id = '233648473390448641'
 
 for await (const messages of Discord.GetChannelMessagesAfter(channel_id, message_id, 100))
-  await Discord.BulkDeleteMessages(channel_id, messages)
+  await Discord.BulkDeleteMessages(channel_id, messages.map(message => message.id))
 ```
 ### [Send A Message](https://discord.com/developers/docs/resources/message#create-message)
 ```js
