@@ -21,10 +21,10 @@ class disbunia {
 			body = new FormData()
 
 			if (json)
-				form.append('payload_json', json)
+				body.append('payload_json', json)
 
 			for (const file in options.formData)
-				form.append(`files[${file}]`, options.formData[file], options.formData[file]?.name)
+				body.append(`files[${file}]`, options.formData[file], options.formData[file]?.name)
 		} else
 			body = json
 		this.#queue.push([resolve, this.#baseURL + resource, {
