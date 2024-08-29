@@ -10,15 +10,17 @@ class disbunia {
 	#queue = []
 
 	fetch(resource, options) {
-		const {promise, resolve} = Promise.withResolvers()
 		if (options?.params)
 			resource += '?' + new URLSearchParams(
 				Object.entries(options.params).filter(([k, v]) => v !== undefined)
 			).toString()
+
 		const headers = Object.assign({
 			Authorization: this.#token
 		}, options?.headers)
+
 		const json = options?.json && JSON.stringify(options.json)
+
 		let body
 		if (options?.formData) {
 			body = new FormData()
@@ -30,18 +32,24 @@ class disbunia {
 			headers['Content-Type'] = 'application/json'
 			body = json
 		}
-		this.#queue.push([resolve, this.#baseURL + resource, {
+
+		return this.#push(this.#baseURL + resource, {
 			headers,
 			method: options?.method,
 			body
-		}])
+		})
+	}
+
+	#push(resource, options) {
+		const {promise, resolve} = Promise.withResolvers()
+		this.#queue.push([resolve, resource, options])
 		if (!this.lock)
 			this.#next(this.lock = true)
 		return promise
 	}
 
 	#next() {
-		fetch(...this.#queue[0].slice(1)).then(r => this.#resolve(r))			
+		fetch(...this.#queue[0].slice(1)).then(r => this.#resolve(r))
 	}
 
 	#resolve(r) {
