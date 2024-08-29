@@ -15,23 +15,23 @@ class disbunia {
 			resource += '?' + new URLSearchParams(
 				Object.entries(options.params).filter(([k, v]) => v !== undefined)
 			).toString()
+		const headers = Object.assign({
+			Authorization: this.#token
+		}, options?.headers)
 		const json = options?.json && JSON.stringify(options.json)
 		let body
 		if (options?.formData) {
 			body = new FormData()
-
 			if (json)
 				body.append('payload_json', json)
-
 			for (const file in options.formData)
 				body.append(`files[${file}]`, options.formData[file], options.formData[file]?.name)
-		} else
+		} else if (json) {
+			headers['Content-Type'] = 'application/json'
 			body = json
+		}
 		this.#queue.push([resolve, this.#baseURL + resource, {
-			headers: Object.assign({
-				Authorization: this.#token,
-				'Content-Type': options?.json ? 'application/json' : undefined
-			}, options?.headers),
+			headers,
 			method: options?.method,
 			body
 		}])
