@@ -1,4 +1,8 @@
 export async function* fetchBefore(resource, options) {
+	if (typeof options.params.before === 'number') {
+		options.params.limit = options.params.before
+		delete options.params.before
+	}
 	while (true) {
 		const response = await this.fetch(resource, options)
 		if (response.length === 0)
@@ -13,6 +17,10 @@ export async function* fetchBefore(resource, options) {
 }
 
 export async function* fetchAfter(resource, options) {
+	if (typeof options.params.after === 'number') {
+		options.params.limit = options.params.after
+		delete options.params.after
+	}
 	while (true) {
 		const response = await this.fetch(resource, options)
 		if (response.length === 0)

@@ -53,13 +53,16 @@ class disbunia {
 	}
 
 	#resolve(r) {
+		if (this.debug)
+			console.log(r)
+
         if (r.status !== 429) // Too Many Requests
 			this.#queue.shift().shift()(r.headers.get('content-type') === 'application/json' ? r.json() : r)
 
-		if (this.#queue.length == 0)
+		if (r.headers.get('x-ratelimit-remaining') == 0)
+			setTimeout(() => this.#next(), r.headers.get('X-RateLimit-Reset') * 1e3 - Date.now())
+		else if (this.#queue.length === 0)
 			this.lock = false
-		else if (r.headers.get('x-ratelimit-remaining') == 0)
-			setTimeout(r => this.#next(), r.headers.get('X-RateLimit-Reset') * 1e3 - Date.now())
 		else
 			this.#next()
 	}
