@@ -54,7 +54,8 @@ class disbunia {
 
 	#resolve(r) {
         if (r.status !== 429) // Too Many Requests
-			r.json().then(this.#queue.shift().shift())
+			this.#queue.shift().shift()(r.headers.get('content-type') === 'application/json' ? r.json() : r)
+
 		if (this.#queue.length == 0)
 			this.lock = false
 		else if (r.headers.get('x-ratelimit-remaining') == 0)
@@ -66,9 +67,15 @@ class disbunia {
 
 Object.assign(disbunia.prototype,
 	await import('./paginator'),
+	await import('./resources/application'),
 	await import('./resources/invite'),
 	await import('./resources/message'),
-	await import('./resources/user')
+	await import('./resources/poll'),
+	await import('./resources/sku'),
+	await import('./resources/stage-instance'),
+	await import('./resources/subscription'),
+	await import('./resources/user'),
+	await import('./resources/voice')
 )
 
 export default disbunia

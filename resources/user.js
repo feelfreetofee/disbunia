@@ -1,4 +1,8 @@
-export function GetUser(user_id = '@me') {
+export function GetCurrentUser() {
+	return this.fetch('/users/@me')
+}
+
+export function GetUser(user_id) {
 	return this.fetch(`/users/${user_id}`)
 }
 
