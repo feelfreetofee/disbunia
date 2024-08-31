@@ -18,14 +18,14 @@ import {default as disbunia} from 'disbunia'
 const Discord = new disbunia(process.env.token)
 ```
 ## Examples
-### [Delete all messages](https://discord.com/developers/docs/resources/message#create-message) in a channel 
+### [Delete all messages](https://discord.com/developers/docs/resources/message#bulk-delete-messages) in a channel 
 ```js
 const channel_id = '103735883630395392'
 
-for await (const messages of Discord.GetChannelMessagesBefore(channel_id, undefined, 100))
+for await (const messages of Discord.GetChannelMessagesBefore(channel_id, 100))
   await Discord.BulkDeleteMessages(channel_id, messages.map(message => message.id))
 ```
-### Delete [all messages after](https://discord.com/developers/docs/resources/message#create-message) a message
+### Delete [all messages after](https://discord.com/developers/docs/resources/message#get-channel-messages) a message
 ```js
 let message_id = '233648473390448641'
 
