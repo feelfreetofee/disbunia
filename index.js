@@ -12,7 +12,8 @@ class disbunia {
 	fetch(resource, options) {
 		if (options?.params)
 			resource += '?' + new URLSearchParams(
-				Object.entries(options.params).filter(([k, v]) => v !== undefined)
+				Object.entries(options.params)
+				.filter(r => r[0] !== undefined)
 			).toString()
 
 		const headers = Object.assign({
@@ -49,6 +50,13 @@ class disbunia {
 	}
 
 	#next() {
+		if (this.#queue.length === 0)
+			this.lock = false
+		else
+			this.#fetch()
+	}
+
+	#fetch() {
 		fetch(...this.#queue[0].slice(1)).then(r => this.#resolve(r))
 	}
 
@@ -61,8 +69,6 @@ class disbunia {
 
 		if (r.headers.get('x-ratelimit-remaining') == 0)
 			setTimeout(() => this.#next(), r.headers.get('X-RateLimit-Reset') * 1e3 - Date.now())
-		else if (this.#queue.length === 0)
-			this.lock = false
 		else
 			this.#next()
 	}
